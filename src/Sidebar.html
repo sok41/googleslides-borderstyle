@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  :root {
+    --ink: #2B2F36;
+    --muted: #6B7280;
+    --line: #DADDE2;
+    --focus: #1F3A5F;
+    --bg: #FFFFFF;
+    --soft: #F6F7F9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px;
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    font-size: 13px; line-height: 1.6; color: var(--ink); background: var(--bg);
+  }
+  h2 { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
+  p.hint { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+
+  /* プリセット：ミニ表そのものを選択肢にする */
+  .presets { display: grid; gap: 10px; margin-bottom: 20px; }
+  .preset {
+    display: block; width: 100%; padding: 10px; text-align: left; cursor: pointer;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    font: inherit; color: inherit;
+  }
+  .preset:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .preset[aria-pressed="true"] { border-color: var(--focus); box-shadow: inset 0 0 0 1px var(--focus); }
+  .preset .label { display: block; font-weight: 700; margin-bottom: 6px; }
+  .mini { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .mini td { height: 12px; padding: 0; }
+
+  .mini.cleanGray td { border: 1px solid #D9D9D9; background: #FFF; }
+  .mini.cleanGray tr:first-child td { background: #F2F2F2; }
+  .mini.cleanGray td:first-child { border-left: 0; }
+  .mini.cleanGray td:last-child { border-right: 0; }
+
+  .mini.navyStripe { border-bottom: 2px solid #1F3A5F; }
+  .mini.navyStripe td { border-top: 1px solid #E3E8EF; background: #FFF; }
+  .mini.navyStripe tr:first-child td { background: #1F3A5F; border-top: 0; }
+  .mini.navyStripe tr:nth-child(odd):not(:first-child) td { background: #F3F6FA; }
+
+  .mini.minimal { border-top: 2px solid #222; border-bottom: 2px solid #222; }
+  .mini.minimal td { border-top: 1px solid #E0E0E0; background: #FFF; }
+  .mini.minimal tr:first-child td { border-top: 0; border-bottom: 1px solid #222; }
+
+  /* オプション */
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 6px 8px; font: inherit; color: inherit;
+    border: 1px solid var(--line); border-radius: 4px; background: var(--bg);
+  }
+  input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+
+  button.apply {
+    width: 100%; margin-top: 8px; padding: 9px; cursor: pointer;
+    background: var(--focus); color: #FFF; border: 0; border-radius: 4px;
+    font: inherit; font-weight: 700;
+  }
+  button.apply:disabled { opacity: .6; cursor: wait; }
+  button.apply:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  #status { margin-top: 12px; font-size: 12px; min-height: 1.6em; }
+  #status.error { color: #B42318; }
+</style>
+</head>
+<body>
+  <h2>デザインを選ぶ</h2>
+  <p class="hint">表の中をクリックしてから「適用」を押してください。</p>
+
+  <div class="presets" id="presets"></div>
+
+  <h2>文字の設定</h2>
+  <div class="field">
+    <label for="fontFamily">フォント（空欄なら変更しない）</label>
+    <input type="text" id="fontFamily" value="Noto Sans JP">
+  </div>
+  <div class="row field">
+    <div>
+      <label for="headerFontSize">見出しのサイズ(pt)</label>
+      <input type="number" id="headerFontSize" min="6" max="48" placeholder="変更しない">
+    </div>
+    <div>
+      <label for="bodyFontSize">本文のサイズ(pt)</label>
+      <input type="number" id="bodyFontSize" min="6" max="48" placeholder="変更しない">
+    </div>
+  </div>
+  <div class="field">
+    <label for="boldColumns">太字にする列（例：1,4）</label>
+    <input type="text" id="boldColumns" value="1">
+  </div>
+  <div class="field">
+    <label class="check"><input type="checkbox" id="headerBold" checked> 見出し行を太字にする</label>
+  </div>
+
+  <button class="apply" id="apply">適用</button>
+  <div id="status" role="status" aria-live="polite"></div>
+
+<script>
+  const PRESETS = [
+    { key: 'cleanGray', name: 'クリーン・グレー' },
+    { key: 'navyStripe', name: 'ネイビー・ストライプ' },
+    { key: 'minimal', name: 'ミニマル（横線のみ）' },
+  ];
+  let selected = 'cleanGray';
+
+  const wrap = document.getElementById('presets');
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'preset';
+    btn.setAttribute('aria-pressed', p.key === selected);
+    const cells = '<td></td>'.repeat(4);
+    btn.innerHTML = `<span class="label">${p.name}</span>
+      <table class="mini ${p.key}">${('<tr>' + cells + '</tr>').repeat(4)}</table>`;
+    btn.addEventListener('click', () => {
+      selected = p.key;
+      wrap.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+    });
+    wrap.appendChild(btn);
+  });
+
+  const applyBtn = document.getElementById('apply');
+  const status = document.getElementById('status');
+
+  applyBtn.addEventListener('click', () => {
+    const opts = {
+      fontFamily: document.getElementById('fontFamily').value.trim(),
+      headerFontSize: document.getElementById('headerFontSize').value,
+      bodyFontSize: document.getElementById('bodyFontSize').value,
+      boldColumns: document.getElementById('boldColumns').value,
+      headerBold: document.getElementById('headerBold').checked,
+    };
+    applyBtn.disabled = true;
+    applyBtn.textContent = '適用中…';
+    status.className = '';
+    status.textContent = '';
+
+    google.script.run
+      .withSuccessHandler(msg => {
+        status.textContent = msg;
+        reset();
+      })
+      .withFailureHandler(err => {
+        status.className = 'error';
+        status.textContent = err.message;
+        reset();
+      })
+      .applyPreset(selected, opts);
+  });
+
+  function reset() {
+    applyBtn.disabled = false;
+    applyBtn.textContent = '適用';
+  }
+</script>
+</body>
+</html>
