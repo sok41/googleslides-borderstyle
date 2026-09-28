@@ -19,9 +19,11 @@
   }
   h2 { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
   p.hint { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+  section { margin-bottom: 20px; }
 
-  /* プリセット：ミニ表そのものを選択肢にする */
-  .presets { display: grid; gap: 10px; margin-bottom: 20px; }
+  /* プリセット：ミニ表そのものを選択肢にする。見た目は Code.js の定義から作る */
+  .presets { display: grid; gap: 10px; }
+  .presets .loading { color: var(--muted); font-size: 12px; }
   .preset {
     display: block; width: 100%; padding: 10px; text-align: left; cursor: pointer;
     background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
@@ -33,30 +35,17 @@
   .mini { width: 100%; border-collapse: collapse; table-layout: fixed; }
   .mini td { height: 12px; padding: 0; }
 
-  .mini.cleanGray td { border: 1px solid #D9D9D9; background: #FFF; }
-  .mini.cleanGray tr:first-child td { background: #F2F2F2; }
-  .mini.cleanGray td:first-child { border-left: 0; }
-  .mini.cleanGray td:last-child { border-right: 0; }
-
-  .mini.navyStripe { border-bottom: 2px solid #1F3A5F; }
-  .mini.navyStripe td { border-top: 1px solid #E3E8EF; background: #FFF; }
-  .mini.navyStripe tr:first-child td { background: #1F3A5F; border-top: 0; }
-  .mini.navyStripe tr:nth-child(odd):not(:first-child) td { background: #F3F6FA; }
-
-  .mini.minimal { border-top: 2px solid #222; border-bottom: 2px solid #222; }
-  .mini.minimal td { border-top: 1px solid #E0E0E0; background: #FFF; }
-  .mini.minimal tr:first-child td { border-top: 0; border-bottom: 1px solid #222; }
-
   /* オプション */
   .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .field > label, .field > .legend { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  input[type="text"], input[type="number"] {
+  input[type="text"], input[type="number"], select {
     width: 100%; padding: 6px 8px; font: inherit; color: inherit;
     border: 1px solid var(--line); border-radius: 4px; background: var(--bg);
   }
-  input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
   .check { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .radios { display: grid; gap: 2px; }
 
   button.apply {
     width: 100%; margin-top: 8px; padding: 9px; cursor: pointer;
@@ -71,67 +60,180 @@
 </style>
 </head>
 <body>
-  <h2>デザインを選ぶ</h2>
-  <p class="hint">表の中をクリックしてから「適用」を押してください。</p>
+  <section>
+    <h2>デザインを選ぶ</h2>
+    <p class="hint">表の中をクリックしてから「適用」を押してください。</p>
+    <div class="presets" id="presets"><span class="loading">読み込み中…</span></div>
+  </section>
 
-  <div class="presets" id="presets"></div>
-
-  <h2>文字の設定</h2>
-  <div class="field">
-    <label for="fontFamily">フォント（空欄なら変更しない）</label>
-    <input type="text" id="fontFamily" value="Noto Sans JP">
-  </div>
-  <div class="row field">
-    <div>
-      <label for="headerFontSize">見出しのサイズ(pt)</label>
-      <input type="number" id="headerFontSize" min="6" max="48" placeholder="変更しない">
+  <section>
+    <h2>適用する範囲</h2>
+    <div class="radios" role="radiogroup" aria-label="適用する範囲">
+      <label class="check"><input type="radio" name="scope" value="selection" checked> 選択中の表</label>
+      <label class="check"><input type="radio" name="scope" value="slide"> このスライドのすべての表</label>
+      <label class="check"><input type="radio" name="scope" value="all"> すべてのスライドの表</label>
     </div>
-    <div>
-      <label for="bodyFontSize">本文のサイズ(pt)</label>
-      <input type="number" id="bodyFontSize" min="6" max="48" placeholder="変更しない">
-    </div>
-  </div>
-  <div class="field">
-    <label for="boldColumns">太字にする列（例：1,4）</label>
-    <input type="text" id="boldColumns" value="1">
-  </div>
-  <div class="field">
-    <label class="check"><input type="checkbox" id="headerBold" checked> 見出し行を太字にする</label>
-  </div>
+  </section>
 
-  <button class="apply" id="apply">適用</button>
+  <section>
+    <h2>揃え</h2>
+    <div class="row field">
+      <div>
+        <label for="hAlign">横の揃え</label>
+        <select id="hAlign">
+          <option value="KEEP" selected>変更しない</option>
+          <option value="START">左揃え</option>
+          <option value="CENTER">中央揃え</option>
+        </select>
+      </div>
+      <div>
+        <label for="vAlign">縦の揃え</label>
+        <select id="vAlign">
+          <option value="KEEP" selected>変更しない</option>
+          <option value="TOP">上揃え</option>
+          <option value="MIDDLE">中央揃え</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="check"><input type="checkbox" id="alignNumbers" checked> 数値だけの列を右揃えにする</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>文字の設定</h2>
+    <div class="field">
+      <label for="fontFamily">フォント（空欄なら変更しない）</label>
+      <input type="text" id="fontFamily" value="Noto Sans JP">
+    </div>
+    <div class="row field">
+      <div>
+        <label for="headerFontSize">見出しのサイズ(pt)</label>
+        <input type="number" id="headerFontSize" min="6" max="48" placeholder="変更しない">
+      </div>
+      <div>
+        <label for="bodyFontSize">本文のサイズ(pt)</label>
+        <input type="number" id="bodyFontSize" min="6" max="48" placeholder="変更しない">
+      </div>
+    </div>
+    <div class="field">
+      <label for="boldColumns">太字にする列（例：1,4）</label>
+      <input type="text" id="boldColumns" value="1">
+    </div>
+    <div class="field">
+      <label class="check"><input type="checkbox" id="headerBold" checked> 見出し行を太字にする</label>
+    </div>
+  </section>
+
+  <button class="apply" id="apply" disabled>適用</button>
   <div id="status" role="status" aria-live="polite"></div>
 
 <script>
-  const PRESETS = [
-    { key: 'cleanGray', name: 'クリーン・グレー' },
-    { key: 'navyStripe', name: 'ネイビー・ストライプ' },
-    { key: 'minimal', name: 'ミニマル（横線のみ）' },
-  ];
-  let selected = 'cleanGray';
+  const MINI_ROWS = 4;
+  const MINI_COLS = 4;
+  let selected = null;
 
   const wrap = document.getElementById('presets');
-  PRESETS.forEach(p => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'preset';
-    btn.setAttribute('aria-pressed', p.key === selected);
-    const cells = '<td></td>'.repeat(4);
-    btn.innerHTML = `<span class="label">${p.name}</span>
-      <table class="mini ${p.key}">${('<tr>' + cells + '</tr>').repeat(4)}</table>`;
-    btn.addEventListener('click', () => {
-      selected = p.key;
-      wrap.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', 'false'));
-      btn.setAttribute('aria-pressed', 'true');
-    });
-    wrap.appendChild(btn);
-  });
-
   const applyBtn = document.getElementById('apply');
   const status = document.getElementById('status');
 
+  google.script.run
+    .withSuccessHandler(renderPresets)
+    .withFailureHandler(err => {
+      wrap.textContent = '';
+      status.className = 'error';
+      status.textContent = 'プリセットを読み込めませんでした: ' + err.message;
+    })
+    .getPresets();
+
+  function renderPresets(presets) {
+    wrap.textContent = '';
+    selected = presets[0].key;
+    presets.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'preset';
+      btn.setAttribute('aria-pressed', p.key === selected);
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = p.name;
+      btn.append(label, miniTable(p));
+      btn.addEventListener('click', () => {
+        selected = p.key;
+        wrap.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', 'true');
+      });
+      wrap.appendChild(btn);
+    });
+    applyBtn.disabled = false;
+  }
+
+  // プリセットの定義から、4×4 のミニ表を描く
+  function miniTable(p) {
+    // 横線 h[i][c]（i = 0..行数）と縦線 v[r][j]（j = 0..列数）に、罫線を上から順に重ねる
+    const h = grid(MINI_ROWS + 1, MINI_COLS);
+    const v = grid(MINI_ROWS, MINI_COLS + 1);
+    p.borders.forEach(b => {
+      const r0 = 0;
+      const r1 = b.range === 'header' ? 1 : MINI_ROWS;
+      const css = b.color ? `${Math.max(1, Math.round(b.weight || 1))}px solid ${b.color}` : 'none';
+      for (let i = r0; i <= r1; i++) {
+        const outer = i === r0 || i === r1;
+        if (lineMatches(b.position, 'h', outer, i === r0, i === r1)) h[i].fill(css);
+      }
+      for (let r = r0; r < r1; r++) {
+        for (let j = 0; j <= MINI_COLS; j++) {
+          const outer = j === 0 || j === MINI_COLS;
+          if (lineMatches(b.position, 'v', outer, j === 0, j === MINI_COLS)) v[r][j] = css;
+        }
+      }
+    });
+
+    const table = document.createElement('table');
+    table.className = 'mini';
+    for (let r = 0; r < MINI_ROWS; r++) {
+      let fill = p.bodyFill;
+      if (r === 0) fill = p.headerFill;
+      else if (p.stripeFill && r % 2 === 0) fill = p.stripeFill;
+      const tr = table.insertRow();
+      for (let c = 0; c < MINI_COLS; c++) {
+        const td = tr.insertCell();
+        td.style.background = fill;
+        td.style.borderTop = h[r][c];
+        td.style.borderBottom = h[r + 1][c];
+        td.style.borderLeft = v[r][c];
+        td.style.borderRight = v[r][c + 1];
+      }
+    }
+    return table;
+  }
+
+  // dir: 'h'（横線）/ 'v'（縦線）。first/last は範囲の上端・左端／下端・右端
+  function lineMatches(position, dir, outer, first, last) {
+    switch (position) {
+      case 'ALL': return true;
+      case 'OUTER': return outer;
+      case 'INNER': return !outer;
+      case 'INNER_HORIZONTAL': return dir === 'h' && !outer;
+      case 'INNER_VERTICAL': return dir === 'v' && !outer;
+      case 'TOP': return dir === 'h' && first;
+      case 'BOTTOM': return dir === 'h' && last;
+      case 'LEFT': return dir === 'v' && first;
+      case 'RIGHT': return dir === 'v' && last;
+      default: return false;
+    }
+  }
+
+  function grid(rows, cols) {
+    return Array.from({ length: rows }, () => Array(cols).fill('none'));
+  }
+
   applyBtn.addEventListener('click', () => {
     const opts = {
+      scope: document.querySelector('input[name="scope"]:checked').value,
+      hAlign: document.getElementById('hAlign').value,
+      vAlign: document.getElementById('vAlign').value,
+      alignNumbers: document.getElementById('alignNumbers').checked,
       fontFamily: document.getElementById('fontFamily').value.trim(),
       headerFontSize: document.getElementById('headerFontSize').value,
       bodyFontSize: document.getElementById('bodyFontSize').value,

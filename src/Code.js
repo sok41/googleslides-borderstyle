@@ -4,6 +4,7 @@
  */
 
 // ===== プリセット定義 =====
+// サイドバーのプレビューもこの定義から作られます（getPresets）。
 // borders: 上から順に適用されます。color: null は「罫線なし（透明）」。
 // range: 'header' を付けると、ヘッダー行だけに適用します。
 const PRESETS = {
@@ -54,38 +55,81 @@ function showSidebar() {
   SlidesApp.getUi().showSidebar(html);
 }
 
-// ===== サイドバーから呼ばれるメイン処理 =====
+// ===== サイドバーから呼ばれる処理 =====
+/** サイドバーに表示するプリセット一覧 */
+function getPresets() {
+  return Object.keys(PRESETS).map(key => Object.assign({ key: key }, PRESETS[key]));
+}
+
 /**
  * @param {string} presetKey PRESETSのキー
- * @param {Object} opts { fontFamily, headerFontSize, bodyFontSize, boldColumns, headerBold }
+ * @param {Object} opts {
+ *   scope: 'selection' | 'slide' | 'all',
+ *   hAlign: 'KEEP' | 'START' | 'CENTER',
+ *   vAlign: 'KEEP' | 'TOP' | 'MIDDLE',
+ *   alignNumbers: boolean,
+ *   fontFamily, headerFontSize, bodyFontSize, boldColumns, headerBold
+ * }
  */
 function applyPreset(presetKey, opts) {
   const preset = PRESETS[presetKey];
   if (!preset) throw new Error('プリセットが見つかりません: ' + presetKey);
 
-  const table = getSelectedTable_();
+  const tables = getTargetTables_(opts.scope);
+  const requests = [];
+  tables.forEach(table => requests.push(...tableRequests_(table, preset, opts)));
+
+  Slides.Presentations.batchUpdate({ requests: requests }, SlidesApp.getActivePresentation().getId());
+
+  if (tables.length === 1) {
+    return `「${preset.name}」を適用しました（${tables[0].getNumRows()}行 × ${tables[0].getNumColumns()}列）`;
+  }
+  return `「${preset.name}」を${tables.length}個の表に適用しました`;
+}
+
+// ===== 表1つ分のリクエストを作る =====
+function tableRequests_(table, preset, opts) {
   const tableId = table.getObjectId();
   const rows = table.getNumRows();
   const cols = table.getNumColumns();
   const boldCols = parseColumns_(opts.boldColumns, cols);
 
+  // セルの文字を先に読んでおく（結合で隠れたセルは null）
+  const texts = [];
+  const spans = [];
+  for (let r = 0; r < rows; r++) {
+    texts.push([]);
+    spans.push([]);
+    for (let c = 0; c < cols; c++) {
+      const cell = table.getCell(r, c);
+      const hidden = cell.getMergeState() === SlidesApp.CellMergeState.MERGED;
+      texts[r].push(hidden ? null : cell.getText().asString().trim());
+      spans[r].push(hidden ? 0 : cell.getColumnSpan());
+    }
+  }
+  const numericCols = opts.alignNumbers ? findNumericColumns_(texts, spans) : [];
+
   const requests = [];
 
-  // 1) セルの背景色と縦位置（上揃え）
+  // 1) セルの背景色と縦位置
+  const vAlign = opts.vAlign && opts.vAlign !== 'KEEP' ? opts.vAlign : null;
   for (let r = 0; r < rows; r++) {
     let fill = preset.bodyFill;
     if (r === 0) fill = preset.headerFill;
     else if (preset.stripeFill && r % 2 === 0) fill = preset.stripeFill;
 
+    const props = { tableCellBackgroundFill: { solidFill: { color: { rgbColor: hexToRgb_(fill) } } } };
+    const fields = ['tableCellBackgroundFill'];
+    if (vAlign) {
+      props.contentAlignment = vAlign;
+      fields.push('contentAlignment');
+    }
     requests.push({
       updateTableCellProperties: {
         objectId: tableId,
         tableRange: { location: { rowIndex: r, columnIndex: 0 }, rowSpan: 1, columnSpan: cols },
-        tableCellProperties: {
-          tableCellBackgroundFill: { solidFill: { color: { rgbColor: hexToRgb_(fill) } } },
-          contentAlignment: 'TOP',
-        },
-        fields: 'tableCellBackgroundFill,contentAlignment',
+        tableCellProperties: props,
+        fields: fields.join(','),
       },
     });
   }
@@ -93,12 +137,11 @@ function applyPreset(presetKey, opts) {
   // 2) 罫線
   preset.borders.forEach(b => requests.push(borderRequest_(tableId, b, cols)));
 
-  // 3) 文字の書式（空のセル・結合で隠れたセルはスキップ）
+  // 3) 文字の書式と横位置（空のセル・結合で隠れたセルはスキップ）
+  const hAlign = opts.hAlign && opts.hAlign !== 'KEEP' ? opts.hAlign : null;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const cell = table.getCell(r, c);
-      if (cell.getMergeState() === SlidesApp.CellMergeState.MERGED) continue;
-      if (cell.getText().asString().trim() === '') continue;
+      if (!texts[r][c]) continue;
 
       const isHeader = r === 0;
       const style = {
@@ -126,23 +169,47 @@ function applyPreset(presetKey, opts) {
           fields: fields.join(','),
         },
       });
-      requests.push({
-        updateParagraphStyle: {
-          objectId: tableId,
-          cellLocation: { rowIndex: r, columnIndex: c },
-          textRange: { type: 'ALL' },
-          style: { alignment: 'START' },
-          fields: 'alignment',
-        },
-      });
+
+      // 数値の列は見出しも含めて右揃え。それ以外は指定があるときだけ変更する
+      const alignment = numericCols.includes(c) && spans[r][c] === 1 ? 'END' : hAlign;
+      if (alignment) {
+        requests.push({
+          updateParagraphStyle: {
+            objectId: tableId,
+            cellLocation: { rowIndex: r, columnIndex: c },
+            textRange: { type: 'ALL' },
+            style: { alignment: alignment },
+            fields: 'alignment',
+          },
+        });
+      }
     }
   }
-
-  Slides.Presentations.batchUpdate({ requests: requests }, SlidesApp.getActivePresentation().getId());
-  return `「${preset.name}」を適用しました（${rows}行 × ${cols}列）`;
+  return requests;
 }
 
 // ===== ヘルパー =====
+function getTargetTables_(scope) {
+  const presentation = SlidesApp.getActivePresentation();
+
+  if (scope === 'all') {
+    const tables = [];
+    presentation.getSlides().forEach(slide => tables.push(...slide.getTables()));
+    if (tables.length === 0) throw new Error('このプレゼンテーションには表がありません。');
+    return tables;
+  }
+
+  if (scope === 'slide') {
+    const page = presentation.getSelection().getCurrentPage();
+    if (!page) throw new Error('スライドが選択されていません。対象のスライドを開いてから、もう一度「適用」を押してください。');
+    const tables = page.getTables();
+    if (tables.length === 0) throw new Error('このスライドには表がありません。');
+    return tables;
+  }
+
+  return [getSelectedTable_()];
+}
+
 function getSelectedTable_() {
   const sel = SlidesApp.getActivePresentation().getSelection();
 
@@ -158,6 +225,33 @@ function getSelectedTable_() {
     if (el) return el.asTable();
   }
   throw new Error('表が選択されていません。表の中をクリックしてから、もう一度「適用」を押してください。');
+}
+
+// 見出し行を除いて、空でないセルがすべて数値の列を返す（横に結合したセルは判定に使わない）
+function findNumericColumns_(texts, spans) {
+  const result = [];
+  for (let c = 0; c < texts[0].length; c++) {
+    let count = 0;
+    let allNumeric = true;
+    for (let r = 1; r < texts.length; r++) {
+      if (!texts[r][c] || spans[r][c] !== 1) continue;
+      count++;
+      if (!isNumeric_(texts[r][c])) {
+        allNumeric = false;
+        break;
+      }
+    }
+    if (count > 0 && allNumeric) result.push(c);
+  }
+  return result;
+}
+
+// "1,234" "-12.5%" "¥500" "▲300" "(1,200)" "３件" などを数値とみなす
+function isNumeric_(text) {
+  const s = text
+    .replace(/[０-９．，％＋－]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+    .replace(/\s/g, '');
+  return /^[+\-−▲△]?[¥￥$€£]?\(?[+\-−]?\d[\d,]*(\.\d+)?\)?(%|円|万|億|千|倍|件|人|個|pt|x)?$/i.test(s);
 }
 
 function borderRequest_(tableId, b, cols) {
