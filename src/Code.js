@@ -43,11 +43,17 @@ const PRESETS = {
 };
 
 // ===== メニューとサイドバー =====
-function onOpen() {
+// onOpen は承認前（AuthMode.NONE）にも呼ばれるため、メニュー作成以外のサービスは使わない
+function onOpen(e) {
   SlidesApp.getUi()
-    .createMenu('表デザイン')
+    .createAddonMenu()
     .addItem('サイドバーを開く', 'showSidebar')
     .addToUi();
+}
+
+// インストール直後は onOpen が呼ばれないので、ここでメニューを出す
+function onInstall(e) {
+  onOpen(e);
 }
 
 function showSidebar() {
@@ -72,14 +78,19 @@ function getPresets() {
  * }
  */
 function applyPreset(presetKey, opts) {
+  opts = opts || {};
   const preset = PRESETS[presetKey];
-  if (!preset) throw new Error('プリセットが見つかりません: ' + presetKey);
+  if (!preset) throw userError_('プリセットが見つかりません: ' + presetKey);
 
-  const tables = getTargetTables_(opts.scope);
-  const requests = [];
-  tables.forEach(table => requests.push(...tableRequests_(table, preset, opts)));
-
-  Slides.Presentations.batchUpdate({ requests: requests }, SlidesApp.getActivePresentation().getId());
+  let tables;
+  try {
+    tables = getTargetTables_(opts.scope);
+    const requests = [];
+    tables.forEach(table => requests.push(...tableRequests_(table, preset, opts)));
+    Slides.Presentations.batchUpdate({ requests: requests }, SlidesApp.getActivePresentation().getId());
+  } catch (e) {
+    throw toUserError_(e);
+  }
 
   if (tables.length === 1) {
     return `「${preset.name}」を適用しました（${tables[0].getNumRows()}行 × ${tables[0].getNumColumns()}列）`;
@@ -188,6 +199,35 @@ function tableRequests_(table, preset, opts) {
   return requests;
 }
 
+// ===== エラー =====
+// 利用者向けのメッセージを持つエラー。サイドバーにはそのまま表示される
+function userError_(message) {
+  const e = new Error(message);
+  e.name = 'UserError';
+  return e;
+}
+
+// 想定外のエラーを、利用者が次にどうすればよいかわかるメッセージに置き換える
+function toUserError_(e) {
+  if (e && e.name === 'UserError') return e;
+  console.error(e);
+
+  const msg = String((e && e.message) || e);
+  if (/permission|PERMISSION_DENIED|forbidden|権限/i.test(msg)) {
+    return userError_('このスライドを編集する権限がありません。編集権限のあるスライドで実行してください。');
+  }
+  if (/authoriz|UNAUTHENTICATED|承認/i.test(msg)) {
+    return userError_('承認の有効期限が切れています。スライドを再読み込みして、もう一度サイドバーを開いてください。');
+  }
+  if (/Exceeded maximum execution time|too many times|RESOURCE_EXHAUSTED|rate limit|時間/i.test(msg)) {
+    return userError_('処理に時間がかかりすぎたか、混み合っています。適用する範囲を狭めるか、しばらくしてからもう一度お試しください。');
+  }
+  if (/Invalid requests|INVALID_ARGUMENT/i.test(msg)) {
+    return userError_('この表には書式を適用できませんでした。結合したセルなど、表の構造が原因の可能性があります。（詳細：' + msg + '）');
+  }
+  return userError_('予期しないエラーが発生しました。（詳細：' + msg + '）');
+}
+
 // ===== ヘルパー =====
 function getTargetTables_(scope) {
   const presentation = SlidesApp.getActivePresentation();
@@ -195,15 +235,15 @@ function getTargetTables_(scope) {
   if (scope === 'all') {
     const tables = [];
     presentation.getSlides().forEach(slide => tables.push(...slide.getTables()));
-    if (tables.length === 0) throw new Error('このプレゼンテーションには表がありません。');
+    if (tables.length === 0) throw userError_('このプレゼンテーションには表がありません。');
     return tables;
   }
 
   if (scope === 'slide') {
     const page = presentation.getSelection().getCurrentPage();
-    if (!page) throw new Error('スライドが選択されていません。対象のスライドを開いてから、もう一度「適用」を押してください。');
+    if (!page) throw userError_('スライドが選択されていません。対象のスライドを開いてから、もう一度「適用」を押してください。');
     const tables = page.getTables();
-    if (tables.length === 0) throw new Error('このスライドには表がありません。');
+    if (tables.length === 0) throw userError_('このスライドには表がありません。');
     return tables;
   }
 
@@ -224,7 +264,7 @@ function getSelectedTable_() {
       .find(e => e.getPageElementType() === SlidesApp.PageElementType.TABLE);
     if (el) return el.asTable();
   }
-  throw new Error('表が選択されていません。表の中をクリックしてから、もう一度「適用」を押してください。');
+  throw userError_('表が選択されていません。表の中をクリックしてから、もう一度「適用」を押してください。');
 }
 
 // 見出し行を除いて、空でないセルがすべて数値の列を返す（横に結合したセルは判定に使わない）
