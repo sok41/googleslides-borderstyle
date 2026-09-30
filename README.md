@@ -1,113 +1,121 @@
 # Slide Table Styler
 
-Googleスライドの表に、罫線・背景色・文字の書式をまとめたデザインをワンクリックで適用する Google Apps Script です。
+**English** | [日本語](README.ja.md)
 
-表を1つずつ手で整える代わりに、プリセットを選んで「適用」を押すだけで、資料内の表の見た目をそろえられます。
+A Google Slides add-on (built with Google Apps Script) that applies clean, consistent designs to your tables in one click — borders, background colors, and text styles together.
 
-- サイト：https://sok41.github.io/slide-table-styler/
-- [プライバシーポリシー](https://sok41.github.io/slide-table-styler/privacy.html)・[利用規約](https://sok41.github.io/slide-table-styler/terms.html)
-- お問い合わせ：[GitHub Issues](https://github.com/sok41/slide-table-styler/issues)
+Instead of formatting tables one by one, pick a preset and click **Apply** to make every table in your deck look consistent.
 
-## できること
+- Website: https://sok41.github.io/slide-table-styler/
+- [Privacy Policy](https://sok41.github.io/slide-table-styler/privacy.html) · [Terms of Service](https://sok41.github.io/slide-table-styler/terms.html)
+- Support: [GitHub Issues](https://github.com/sok41/slide-table-styler/issues)
 
-- 4種類のデザインプリセットから選んで一括適用
-- アクセントカラーを変更：スライドのテーマの色から選ぶか、好きな色を指定
-- 適用する範囲を選択：選択中の表／このスライドのすべての表／すべてのスライドの表
-- 横の揃え（左・中央）と縦の揃え（上・中央）を指定。「変更しない」も選べます
-- 数値だけの列を自動で右揃え
-- 行の高さの最小値を指定、列幅をそろえる
-- 内側の罫線を実線・点線・破線に変更
-- フォント、見出し・本文の文字サイズを指定
-- 太字にする列を指定（例：`1,4`）
-- 見出し行（1行目）を太字にするかどうかを切り替え
-- 日本語・英語に対応（Chrome の表示言語が日本語なら日本語、それ以外は英語で表示）
+## Features
 
-### プリセット
+- Apply one of 4 design presets in one click
+- Change the accent color: pick one of your slide's theme colors, or any color
+- Choose where to apply: the selected table, all tables on the current slide, or all tables in the presentation
+- Set horizontal alignment (left or center) and vertical alignment (top or middle), or keep the existing alignment
+- Automatically right-align columns that contain only numbers
+- Set a minimum row height and make columns equal width
+- Change inner lines to solid, dotted, or dashed
+- Set the font and the header/body font sizes
+- Choose which columns are bold (e.g. `1,4`)
+- Turn bold on or off for the header row (the first row)
+- Available in English and Japanese (Japanese when Chrome's display language is Japanese, English otherwise)
 
-| プリセット | 見た目 |
+### Presets
+
+| Preset | Look |
 |---|---|
-| クリーン・グレー | 薄いグレーの見出し行。縦線はなく、薄いグレーの横線で区切る |
-| ネイビー・ストライプ | 紺の見出し行に白文字。行ごとに薄い青の縞模様、下端に紺の太線 |
-| ミニマル（横線のみ） | 縦線なし。上下に黒の太線、見出しの下に黒線、行の間に薄い横線 |
-| ドット区切り | 薄い色の見出し行。行の間を点線で区切り、見出しの下と表の下に太線 |
+| Clean Gray | Light gray header row. No vertical lines; rows separated by light gray lines |
+| Navy Stripe | Navy header row with white text. Light blue striped rows and a thick navy bottom line |
+| Minimal (Rules Only) | No vertical lines. Thick black lines at the top and bottom, a black line under the header, and light lines between rows |
+| Dotted Rows | Lightly tinted header row. Dotted lines between rows, with thick lines under the header and at the bottom |
 
-## 使い方
+## How to use
 
-1. スライドを開き、メニューの **拡張機能 → Slide Table Styler → サイドバーを開く** を選びます。
-2. 表の中のセルをクリックするか、表そのものを選択します（範囲を「スライド」「すべて」にする場合は不要です）。
-3. サイドバーでプリセットと適用する範囲を選び、必要に応じて揃えや文字の設定を変えます。
-4. **適用** を押します。
+1. Open a presentation and choose **Extensions → Slide Table Styler → Open sidebar**.
+2. Click inside a table, or select the table itself (not needed when applying to a whole slide or presentation).
+3. In the sidebar, choose a preset and where to apply it, and adjust alignment and text settings if needed.
+4. Click **Apply**.
 
-初回の実行時には、Googleアカウントでの承認を求められます。
+The first time you run it, you'll be asked to authorize the add-on with your Google account. To undo, press Ctrl+Z (⌘+Z on Mac).
 
-### 表示言語
+### Display language
 
-- サイドバーと、適用後のメッセージ・エラーは、Chrome の表示言語で切り替わります（日本語なら日本語、それ以外は英語）。
-- 「拡張機能」メニューの項目は、Google アカウントの言語設定で切り替わります。メニューを作る時点では Chrome の言語がわからないためです。
-- 文言は [src/Code.js](src/Code.js) の `MESSAGES`（メニュー・メッセージ）と、[src/Sidebar.html](src/Sidebar.html) の `I18N`（サイドバー）にまとめています。
+- The sidebar, messages, and errors follow Chrome's display language (Japanese if it's Japanese, English otherwise).
+- The item in the Extensions menu follows your Google account's language setting, because Chrome's language isn't available when the menu is created.
+- All text lives in `MESSAGES` in [src/Code.js](src/Code.js) (menu and messages) and `I18N` in [src/Sidebar.html](src/Sidebar.html) (sidebar).
 
-### 適用時の動作
+### What happens when you apply
 
-- 1行目を見出し行として扱います。
-- 揃えを「変更しない」にすると、各セルの今の揃えをそのまま残します。
-- 「数値だけの列を右揃えにする」をオンにすると、見出し行を除いて中身がすべて数値の列を、見出しも含めて右揃えにします。`1,234` `-12.5%` `¥500` `▲300` `(1,200)` `３件` のような、記号や単位の付いた数値も対象です。空のセルは判定に含めません。
-- 「すべてのスライドの表」では、グループ化された表は対象になりません。
-- フォントを空欄にすると、フォントは変更しません。文字サイズも空欄なら変更しません。
-- 空のセルと、結合によって隠れているセルは、文字の書式を変更しません。
+- The first row is treated as the header row.
+- When alignment is set to "No change", each cell keeps its current alignment.
+- With "Right-align columns that contain only numbers" on, any column whose cells (excluding the header) all contain numbers is right-aligned, including its header. Numbers with symbols or units such as `1,234` `-12.5%` `$500` `▲300` `(1,200)` are included. Empty cells are ignored.
+- Tables inside groups are not included when applying to a whole slide or presentation.
+- If the font field is empty, the font isn't changed. The same goes for empty font size fields.
+- Empty cells and cells hidden by merging keep their text formatting.
 
-## セットアップ
+## Development setup
 
-このスクリプトは、Googleスライドに紐づいた（コンテナバインド型の）Apps Script として動作します。
+The add-on is developed and tested as an editor add-on in a standalone Apps Script project.
 
-### 必要なもの
+### Requirements
 
 - Node.js
-- [clasp](https://github.com/google/clasp)（`npm install -g @google/clasp`）
+- [clasp](https://github.com/google/clasp) (`npm install -g @google/clasp`, or use `npx @google/clasp`)
 
-### 手順
+### Steps
 
-1. 使いたいGoogleスライドを開き、**拡張機能 → Apps Script** でスクリプトを作成します。
-2. Apps Script エディタの **プロジェクトの設定** から、スクリプトIDをコピーします。
-3. このリポジトリをクローンし、ルートに `.clasp.json` を作成します。
-
-   ```json
-   {
-     "scriptId": "<コピーしたスクリプトID>",
-     "rootDir": "src"
-   }
-   ```
-
-4. clasp にログインして、コードを反映します。
+1. Clone this repository and log in to clasp.
 
    ```sh
    clasp login
+   ```
+
+2. Create a standalone Apps Script project.
+
+   ```sh
+   clasp create --type standalone --title "Slide Table Styler" --rootDir src
+   ```
+
+   clasp overwrites `src/appsscript.json` with an empty manifest at this point, so restore it with `git checkout -- src/appsscript.json`.
+
+3. Push the code.
+
+   ```sh
    clasp push
    ```
 
-5. スライドを再読み込みすると、**拡張機能** メニューに **Slide Table Styler** が表示されます。
+4. In the Apps Script editor, open **Deploy → Test deployments**, choose **Editor Add-on**, and create a test with a presentation that contains tables.
+5. Run the test. **Slide Table Styler** appears in that presentation's **Extensions** menu.
 
-Slides API（高度なサービス）は [src/appsscript.json](src/appsscript.json) で有効化済みです。
+The Slides API (advanced service) and the OAuth scopes are already configured in [src/appsscript.json](src/appsscript.json).
 
-## ファイル構成
+## Project structure
 
 ```
 src/
-├── appsscript.json   マニフェスト（V8ランタイム、Slides API v1）
-├── Code.js           メニュー、プリセット定義、表への適用処理
-└── Sidebar.html      サイドバーの画面
+├── appsscript.json   Manifest (V8 runtime, Slides API v1, OAuth scopes)
+├── Code.js           Menu, preset definitions, table formatting, display language
+└── Sidebar.html      Sidebar UI
+docs/                 Website on GitHub Pages: home, privacy policy, terms of service
+assets/icon/          Icons
 ```
 
-## プリセットを追加・変更するには
+## Adding or changing presets
 
-[src/Code.js](src/Code.js) の `PRESETS` だけを編集します。サイドバーの一覧とプレビューは、この定義から自動で作られます。
+Edit only `PRESETS` in [src/Code.js](src/Code.js). The sidebar's list and previews are generated from it.
 
-- 色は `'#RRGGBB'` のほか、`'accent'`（アクセントカラー）や `'accent/10'`（アクセントカラーを白に10%混ぜた色）で書けます。`accent` にはプリセットの既定の色を書きます。
-- `headerText: 'auto'` にすると、見出しの背景色に合わせて白か濃い灰色を選びます。
-- `borders` は上から順に適用されます。`color: null` は罫線を透明にし、`range: 'header'` を付けると見出し行だけに適用します。`dash: 'DOT'`（点線）や `'DASH'`（破線）で線種を指定できます。
+- Write `name` in both Japanese (`ja`) and English (`en`).
+- Colors can be `'#RRGGBB'`, `'accent'` (the accent color), or `'accent/10'` (the accent color mixed into white at 10%). Set the preset's default accent color in `accent`.
+- `headerText: 'auto'` picks white or dark gray, whichever is easier to read on the header background.
+- `borders` are applied in order. `color: null` makes a line transparent, and `range: 'header'` limits a line to the header row. Use `dash: 'DOT'` (dotted) or `'DASH'` (dashed) to set the line style.
 
-色の解決はサイドバーのプレビュー（[src/Sidebar.html](src/Sidebar.html) の `resolvePreset`）でも同じ規則で行っています。規則を変えるときは両方をそろえてください。
+The sidebar preview (`resolvePreset` in [src/Sidebar.html](src/Sidebar.html)) resolves colors with the same rules. Keep both in sync when you change them.
 
-## 開発のルール
+## Development rules
 
-- コードは `src/` 以下だけを編集し、Apps Script エディタでは直接編集しません（ローカルが正）。
-- 変更後は `clasp push` でスライドに反映して、動作を確認します。
+- Edit code only under `src/`. Don't edit directly in the Apps Script editor — the local files are the source of truth.
+- After a change, run `clasp push` and check it with the test deployment.
