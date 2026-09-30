@@ -12,137 +12,178 @@
     --soft: #F6F7F9;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    margin: 0; padding: 16px;
+    margin: 0;
+    display: flex; flex-direction: column;
     font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-    font-size: 13px; line-height: 1.6; color: var(--ink); background: var(--bg);
+    font-size: 13px; line-height: 1.5; color: var(--ink); background: var(--bg);
   }
-  h2 { font-size: 13px; font-weight: 700; margin: 0 0 8px; }
-  p.hint { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
-  section { margin-bottom: 20px; }
 
-  /* プリセット：ミニ表そのものを選択肢にする。見た目は Code.js の定義から作る */
-  .presets { display: grid; gap: 10px; }
-  .presets .loading { color: var(--muted); font-size: 12px; }
+  /* 設定はスクロール、適用ボタンは常に下に表示 */
+  main { flex: 1; overflow-y: auto; padding: 14px 14px 4px; }
+  footer {
+    flex: none; padding: 10px 14px 12px;
+    border-top: 1px solid var(--line); background: var(--soft);
+  }
+
+  h2 { font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+  section { margin-bottom: 16px; }
+
+  /* プリセット：3列のミニ表。見た目は Code.js の定義から作る */
+  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .presets .loading { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
   .preset {
-    display: block; width: 100%; padding: 10px; text-align: left; cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px;
+    width: 100%; padding: 6px; text-align: left; cursor: pointer;
     background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
     font: inherit; color: inherit;
   }
+  .preset:hover { border-color: #AEB4BD; }
   .preset:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .preset[aria-pressed="true"] { border-color: var(--focus); box-shadow: inset 0 0 0 1px var(--focus); }
-  .preset .label { display: block; font-weight: 700; margin-bottom: 6px; }
+  .preset .label { font-size: 11px; line-height: 1.35; word-break: keep-all; overflow-wrap: anywhere; }
+  .preset[aria-pressed="true"] .label { font-weight: 700; }
   .mini { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .mini td { height: 12px; padding: 0; }
+  .mini td { height: 8px; padding: 0; }
 
-  /* オプション */
-  .field { margin-bottom: 12px; }
-  .field > label, .field > .legend { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  /* 入力欄 */
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field { margin-bottom: 10px; }
+  .field > label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
   input[type="text"], input[type="number"], select {
-    width: 100%; padding: 6px 8px; font: inherit; color: inherit;
+    width: 100%; padding: 5px 8px; font: inherit; color: inherit;
     border: 1px solid var(--line); border-radius: 4px; background: var(--bg);
   }
   input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
   .check { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-  .radios { display: grid; gap: 2px; }
 
+  /* 文字の設定は折りたたむ */
+  details { border: 1px solid var(--line); border-radius: 6px; }
+  summary {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 8px 10px; cursor: pointer; list-style: none;
+    font-size: 12px; font-weight: 700;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "▸"; color: var(--muted); transition: transform .15s; }
+  details[open] summary::after { transform: rotate(90deg); }
+  summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  summary .current { flex: 1; font-weight: 400; color: var(--muted); font-size: 11px; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  details .body { padding: 2px 10px 4px; }
+
+  /* フッター */
+  .scope { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .scope label { flex: none; font-size: 12px; color: var(--muted); }
   button.apply {
-    width: 100%; margin-top: 8px; padding: 9px; cursor: pointer;
+    width: 100%; padding: 9px; cursor: pointer;
     background: var(--focus); color: #FFF; border: 0; border-radius: 4px;
     font: inherit; font-weight: 700;
   }
+  button.apply:hover:not(:disabled) { background: #173050; }
   button.apply:disabled { opacity: .6; cursor: wait; }
   button.apply:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-  #status { margin-top: 12px; font-size: 12px; min-height: 1.6em; }
+  #status { margin-top: 6px; font-size: 12px; min-height: 1.5em; color: var(--muted); }
+  #status.done { color: #1E6B3A; }
   #status.error { color: #B42318; }
 </style>
 </head>
 <body>
-  <section>
-    <h2>デザインを選ぶ</h2>
-    <p class="hint">表の中をクリックしてから「適用」を押してください。</p>
-    <div class="presets" id="presets"><span class="loading">読み込み中…</span></div>
-  </section>
+  <main>
+    <section>
+      <h2>デザイン</h2>
+      <div class="presets" id="presets"><span class="loading">読み込み中…</span></div>
+    </section>
 
-  <section>
-    <h2>適用する範囲</h2>
-    <div class="radios" role="radiogroup" aria-label="適用する範囲">
-      <label class="check"><input type="radio" name="scope" value="selection" checked> 選択中の表</label>
-      <label class="check"><input type="radio" name="scope" value="slide"> このスライドのすべての表</label>
-      <label class="check"><input type="radio" name="scope" value="all"> すべてのスライドの表</label>
-    </div>
-  </section>
-
-  <section>
-    <h2>揃え</h2>
-    <div class="row field">
-      <div>
-        <label for="hAlign">横の揃え</label>
-        <select id="hAlign">
-          <option value="KEEP" selected>変更しない</option>
-          <option value="START">左揃え</option>
-          <option value="CENTER">中央揃え</option>
-        </select>
+    <section>
+      <h2>揃え</h2>
+      <div class="row field">
+        <div>
+          <label for="hAlign">横</label>
+          <select id="hAlign">
+            <option value="KEEP" selected>変更しない</option>
+            <option value="START">左揃え</option>
+            <option value="CENTER">中央揃え</option>
+          </select>
+        </div>
+        <div>
+          <label for="vAlign">縦</label>
+          <select id="vAlign">
+            <option value="KEEP" selected>変更しない</option>
+            <option value="TOP">上揃え</option>
+            <option value="MIDDLE">中央揃え</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label for="vAlign">縦の揃え</label>
-        <select id="vAlign">
-          <option value="KEEP" selected>変更しない</option>
-          <option value="TOP">上揃え</option>
-          <option value="MIDDLE">中央揃え</option>
-        </select>
-      </div>
-    </div>
-    <div class="field">
       <label class="check"><input type="checkbox" id="alignNumbers" checked> 数値だけの列を右揃えにする</label>
-    </div>
-  </section>
+    </section>
 
-  <section>
-    <h2>文字の設定</h2>
-    <div class="field">
-      <label for="fontFamily">フォント（空欄なら変更しない）</label>
-      <input type="text" id="fontFamily" value="Noto Sans JP">
-    </div>
-    <div class="row field">
-      <div>
-        <label for="headerFontSize">見出しのサイズ(pt)</label>
-        <input type="number" id="headerFontSize" min="6" max="48" placeholder="変更しない">
-      </div>
-      <div>
-        <label for="bodyFontSize">本文のサイズ(pt)</label>
-        <input type="number" id="bodyFontSize" min="6" max="48" placeholder="変更しない">
-      </div>
-    </div>
-    <div class="field">
-      <label for="boldColumns">太字にする列（例：1,4）</label>
-      <input type="text" id="boldColumns" value="1">
-    </div>
-    <div class="field">
-      <label class="check"><input type="checkbox" id="headerBold" checked> 見出し行を太字にする</label>
-    </div>
-  </section>
+    <section>
+      <details id="textSettings">
+        <summary>文字の設定<span class="current" id="textSummary"></span></summary>
+        <div class="body">
+          <div class="field">
+            <label for="fontFamily">フォント（空欄なら変更しない）</label>
+            <input type="text" id="fontFamily" value="Noto Sans JP">
+          </div>
+          <div class="row field">
+            <div>
+              <label for="headerFontSize">見出し(pt)</label>
+              <input type="number" id="headerFontSize" min="6" max="48" placeholder="変更しない">
+            </div>
+            <div>
+              <label for="bodyFontSize">本文(pt)</label>
+              <input type="number" id="bodyFontSize" min="6" max="48" placeholder="変更しない">
+            </div>
+          </div>
+          <div class="field">
+            <label for="boldColumns">太字にする列（例：1,4）</label>
+            <input type="text" id="boldColumns" value="1">
+          </div>
+          <div class="field">
+            <label class="check"><input type="checkbox" id="headerBold" checked> 見出し行を太字にする</label>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
 
-  <button class="apply" id="apply" disabled>適用</button>
-  <div id="status" role="status" aria-live="polite"></div>
+  <footer>
+    <div class="scope">
+      <label for="scope">適用先</label>
+      <select id="scope">
+        <option value="selection" selected>選択中の表</option>
+        <option value="slide">このスライドのすべての表</option>
+        <option value="all">すべてのスライドの表</option>
+      </select>
+    </div>
+    <button class="apply" id="apply" disabled>適用</button>
+    <div id="status" role="status" aria-live="polite"></div>
+  </footer>
 
 <script>
   const MINI_ROWS = 4;
   const MINI_COLS = 4;
+  const HINTS = {
+    selection: '表の中をクリックしてから「適用」を押してください。',
+    slide: '開いているスライドの表すべてに適用します。',
+    all: 'プレゼンテーション内の表すべてに適用します。',
+  };
   let selected = null;
 
-  const wrap = document.getElementById('presets');
-  const applyBtn = document.getElementById('apply');
-  const status = document.getElementById('status');
+  const $ = id => document.getElementById(id);
+  const wrap = $('presets');
+  const applyBtn = $('apply');
+  const status = $('status');
+  const scope = $('scope');
 
   google.script.run
     .withSuccessHandler(renderPresets)
     .withFailureHandler(err => {
       wrap.textContent = '';
-      status.className = 'error';
-      status.textContent = 'プリセットを読み込めませんでした: ' + err.message;
+      showStatus('プリセットを読み込めませんでした: ' + err.message, 'error');
     })
     .getPresets();
 
@@ -153,11 +194,16 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'preset';
+      btn.title = p.name;
       btn.setAttribute('aria-pressed', p.key === selected);
       const label = document.createElement('span');
       label.className = 'label';
-      label.textContent = p.name;
-      btn.append(label, miniTable(p));
+      // 「・」の後と「（」の前でだけ改行する
+      p.name.split(/(?<=・)|(?=（)/).forEach((part, i) => {
+        if (i > 0) label.appendChild(document.createElement('wbr'));
+        label.appendChild(document.createTextNode(part));
+      });
+      btn.append(miniTable(p), label);
       btn.addEventListener('click', () => {
         selected = p.key;
         wrap.querySelectorAll('.preset').forEach(b => b.setAttribute('aria-pressed', 'false'));
@@ -191,6 +237,7 @@
 
     const table = document.createElement('table');
     table.className = 'mini';
+    table.setAttribute('aria-hidden', 'true');
     for (let r = 0; r < MINI_ROWS; r++) {
       let fill = p.bodyFill;
       if (r === 0) fill = p.headerFill;
@@ -228,31 +275,54 @@
     return Array.from({ length: rows }, () => Array(cols).fill('none'));
   }
 
+  // 折りたたんだ「文字の設定」の見出しに、今の設定を短く表示する
+  function updateTextSummary() {
+    const parts = [];
+    const font = $('fontFamily').value.trim();
+    if (font) parts.push(font);
+    const hs = $('headerFontSize').value, bs = $('bodyFontSize').value;
+    if (hs || bs) parts.push(`${hs || '-'}/${bs || '-'}pt`);
+    const cols = $('boldColumns').value.trim();
+    if (cols) parts.push(`太字列 ${cols}`);
+    $('textSummary').textContent = parts.join('・') || '変更しない';
+  }
+  ['fontFamily', 'headerFontSize', 'bodyFontSize', 'boldColumns']
+    .forEach(id => $(id).addEventListener('input', updateTextSummary));
+  updateTextSummary();
+
+  function showStatus(text, kind) {
+    status.className = kind || '';
+    status.textContent = text;
+  }
+  function showHint() {
+    showStatus(HINTS[scope.value]);
+  }
+  scope.addEventListener('change', showHint);
+  showHint();
+
   applyBtn.addEventListener('click', () => {
     const opts = {
-      scope: document.querySelector('input[name="scope"]:checked').value,
-      hAlign: document.getElementById('hAlign').value,
-      vAlign: document.getElementById('vAlign').value,
-      alignNumbers: document.getElementById('alignNumbers').checked,
-      fontFamily: document.getElementById('fontFamily').value.trim(),
-      headerFontSize: document.getElementById('headerFontSize').value,
-      bodyFontSize: document.getElementById('bodyFontSize').value,
-      boldColumns: document.getElementById('boldColumns').value,
-      headerBold: document.getElementById('headerBold').checked,
+      scope: scope.value,
+      hAlign: $('hAlign').value,
+      vAlign: $('vAlign').value,
+      alignNumbers: $('alignNumbers').checked,
+      fontFamily: $('fontFamily').value.trim(),
+      headerFontSize: $('headerFontSize').value,
+      bodyFontSize: $('bodyFontSize').value,
+      boldColumns: $('boldColumns').value,
+      headerBold: $('headerBold').checked,
     };
     applyBtn.disabled = true;
     applyBtn.textContent = '適用中…';
-    status.className = '';
-    status.textContent = '';
+    showStatus('');
 
     google.script.run
       .withSuccessHandler(msg => {
-        status.textContent = msg;
+        showStatus(msg, 'done');
         reset();
       })
       .withFailureHandler(err => {
-        status.className = 'error';
-        status.textContent = err.message;
+        showStatus(err.message, 'error');
         reset();
       })
       .applyPreset(selected, opts);
