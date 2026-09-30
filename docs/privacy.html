@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy – Slide Table Styler</title>
+<meta name="description" content="How Slide Table Styler, a Google Slides add-on, accesses and handles your data.">
+<link rel="icon" href="assets/icon-128.png">
+<link rel="stylesheet" href="style.css">
+<script src="lang.js"></script>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon-128.png" alt="">Slide Table Styler</a>
+    <nav class="site" aria-label="Site">
+      <a href="privacy.html" aria-current="page"><span lang="en">Privacy</span><span lang="ja">プライバシー</span></a>
+      <a href="terms.html"><span lang="en">Terms</span><span lang="ja">利用規約</span></a>
+      <span class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ja" aria-pressed="false">日本語</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ===== English ===== -->
+  <div lang="en">
+    <h1>Privacy Policy</h1>
+    <p class="meta">Effective date: September 30, 2026</p>
+    <p>This Privacy Policy explains how Slide Table Styler (the "Add-on"), a Google Slides add-on developed by sok41 (the "Developer"), accesses, uses, and handles your data.</p>
+
+    <h2>Summary</h2>
+    <ul>
+      <li>The Add-on only works on the presentation you have open, and only changes it when you click <strong>Apply</strong>.</li>
+      <li>The Add-on does not store your content and does not send it to the Developer or any third party.</li>
+      <li>The Add-on does not use cookies, analytics, or advertising.</li>
+    </ul>
+
+    <h2>Data the Add-on accesses</h2>
+    <p>The Add-on runs on Google Apps Script under your Google account. It accesses the following data only while you use it:</p>
+    <ul>
+      <li><strong>Tables in the open presentation</strong> — the number of rows and columns, merged cells, column widths, and the text in each cell. The text is read only to decide how to format it (for example, to skip empty cells and to find columns that contain only numbers).</li>
+      <li><strong>Theme colors of the current slide</strong> — read when the sidebar opens, to offer them as accent color choices.</li>
+      <li><strong>Your language setting</strong> — used to show the menu and messages in Japanese or English.</li>
+    </ul>
+
+    <h2>How the Add-on uses the data</h2>
+    <p>The data is used only to provide the Add-on's features: applying borders, background colors, text styles, alignment, row heights, and column widths to the tables you choose. The Add-on does not use your data for any other purpose.</p>
+
+    <h2>Google OAuth scopes</h2>
+    <div class="table-scroll">
+      <table class="scopes">
+        <thead><tr><th>Scope</th><th>Why the Add-on needs it</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>https://www.googleapis.com/auth/presentations</code></td>
+            <td>To read the tables in the open presentation and change their formatting when you click Apply. Table borders can only be changed through the Google Slides API, which requires this scope. The Add-on only works on the presentation you have open.</td>
+          </tr>
+          <tr>
+            <td><code>https://www.googleapis.com/auth/script.container.ui</code></td>
+            <td>To show the Add-on's menu and sidebar inside Google Slides.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Storage and sharing</h2>
+    <ul>
+      <li>The Add-on does not save your content or settings. All processing happens on Google's servers while the Add-on runs, and nothing is kept afterward.</li>
+      <li>The Add-on does not transfer your data to the Developer or to any third party, does not sell it, and does not use it for advertising or to train AI or machine learning models.</li>
+      <li>If an error occurs, a technical error message may be recorded in Google Cloud Logging so the Developer can fix problems. These messages describe the error (and may include internal identifiers of slide objects) but not the text of your tables. Google also records basic execution information, such as the time and whether it succeeded. These records are deleted automatically according to Google Cloud's retention settings.</li>
+    </ul>
+
+    <h2>Limited Use</h2>
+    <p>Slide Table Styler's use and transfer of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+    <h2>Removing access</h2>
+    <p>You can uninstall the Add-on from Google Slides at any time (<strong>Extensions → Add-ons → Manage add-ons</strong>). You can also remove its access from your Google Account at <a href="https://myaccount.google.com/connections">Third-party apps &amp; services</a>. Because the Add-on keeps no data, there is nothing else to delete.</p>
+
+    <h2>This website</h2>
+    <p>This website is hosted on GitHub Pages. GitHub may collect technical information such as IP addresses when you visit; see the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>. This website itself does not use cookies or analytics.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes, the updated version will be posted on this page with a new effective date.</p>
+
+    <h2>Contact</h2>
+    <p>For questions about this policy, please open an issue on <a href="https://github.com/sok41/googleslides-borderstyle/issues">GitHub Issues</a>.</p>
+  </div>
+
+  <!-- ===== 日本語 ===== -->
+  <div lang="ja">
+    <h1>プライバシーポリシー</h1>
+    <p class="meta">施行日：2026年9月30日</p>
+    <p>このプライバシーポリシーは、sok41（以下「開発者」）が提供する Googleスライドのアドオン Slide Table Styler（以下「本アドオン」）が、データにどのようにアクセスし、どのように扱うかを説明するものです。</p>
+
+    <h2>概要</h2>
+    <ul>
+      <li>本アドオンは、開いているプレゼンテーションだけを対象にし、<strong>「適用」</strong>を押したときにだけ変更します。</li>
+      <li>本アドオンは、内容を保存せず、開発者や第三者に送信しません。</li>
+      <li>本アドオンは、Cookie、アクセス解析、広告を使いません。</li>
+    </ul>
+
+    <h2>本アドオンがアクセスするデータ</h2>
+    <p>本アドオンは、利用者の Google アカウントのもとで Google Apps Script 上で動作し、利用中に限り次のデータにアクセスします。</p>
+    <ul>
+      <li><strong>開いているプレゼンテーションの表</strong>：行と列の数、結合したセル、列幅、各セルの文字。文字は書式の決め方にだけ使います（空のセルを飛ばす、数値だけの列を見つけるなど）。</li>
+      <li><strong>表示中のスライドのテーマの色</strong>：サイドバーを開いたときに読み取り、アクセントカラーの候補として表示します。</li>
+      <li><strong>言語の設定</strong>：メニューやメッセージを日本語・英語のどちらで表示するかを決めるために使います。</li>
+    </ul>
+
+    <h2>データの利用目的</h2>
+    <p>データは、本アドオンの機能（選んだ表に罫線・背景色・文字の書式・揃え・行の高さ・列幅を適用すること）を提供するためにだけ使います。それ以外の目的には使いません。</p>
+
+    <h2>Google OAuth のスコープ</h2>
+    <div class="table-scroll">
+      <table class="scopes">
+        <thead><tr><th>スコープ</th><th>必要な理由</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>https://www.googleapis.com/auth/presentations</code></td>
+            <td>「適用」を押したときに、開いているプレゼンテーションの表を読み取り、書式を変更するため。表の罫線は Google Slides API でしか変更できず、この API にはこのスコープが必要です。本アドオンは開いているプレゼンテーションだけを対象にします。</td>
+          </tr>
+          <tr>
+            <td><code>https://www.googleapis.com/auth/script.container.ui</code></td>
+            <td>Googleスライドの中に、本アドオンのメニューとサイドバーを表示するため。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>保存と共有</h2>
+    <ul>
+      <li>本アドオンは、内容や設定を保存しません。処理は本アドオンの実行中に Google のサーバー上で行われ、終了後に何も残しません。</li>
+      <li>本アドオンは、データを開発者や第三者に送信せず、販売せず、広告や AI・機械学習モデルの学習に使いません。</li>
+      <li>エラーが起きた場合、開発者が不具合を直すために、技術的なエラーメッセージが Google Cloud Logging に記録されることがあります。これはエラーの内容を示すもので（スライド内のオブジェクトの内部 ID を含むことがあります）、表の文字は含みません。また Google は、実行日時や成功・失敗などの基本的な実行情報を記録します。これらの記録は Google Cloud の保持期間の設定に従って自動で削除されます。</li>
+    </ul>
+
+    <h2>Limited Use（利用の制限）</h2>
+    <p>Slide Table Styler による Google API から受け取った情報の利用と転送は、Limited Use の要件を含む <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API サービスのユーザーデータに関するポリシー</a>に従います。</p>
+
+    <h2>アクセス権の削除</h2>
+    <p>本アドオンは、Googleスライドの <strong>拡張機能 → アドオン → アドオンを管理</strong> からいつでもアンインストールできます。また、Google アカウントの<a href="https://myaccount.google.com/connections">サードパーティのアプリとサービス</a>からアクセス権を削除できます。本アドオンはデータを保存しないため、ほかに削除が必要なものはありません。</p>
+
+    <h2>このウェブサイトについて</h2>
+    <p>このウェブサイトは GitHub Pages で公開しています。閲覧時に GitHub が IP アドレスなどの技術的な情報を収集することがあります。詳しくは <a href="https://docs.github.com/ja/site-policy/privacy-policies/github-general-privacy-statement">GitHub のプライバシーに関する声明</a>をご覧ください。このウェブサイト自体は、Cookie やアクセス解析を使いません。</p>
+
+    <h2>このポリシーの変更</h2>
+    <p>このポリシーを変更する場合は、新しい施行日とともにこのページに掲載します。</p>
+
+    <h2>お問い合わせ</h2>
+    <p>このポリシーについてのご質問は、<a href="https://github.com/sok41/googleslides-borderstyle/issues">GitHub Issues</a> にお寄せください。</p>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>© 2026 sok41</span>
+    <a href="./"><span lang="en">Home</span><span lang="ja">ホーム</span></a>
+    <a href="terms.html"><span lang="en">Terms of Service</span><span lang="ja">利用規約</span></a>
+    <a href="https://github.com/sok41/googleslides-borderstyle">GitHub</a>
+  </div>
+</footer>
+</body>
+</html>
