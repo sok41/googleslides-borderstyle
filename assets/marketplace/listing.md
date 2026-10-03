@@ -7,9 +7,9 @@ Google Workspace Marketplace SDK の「Store Listing」に入力する内容。
 - Pricing: Free
 - Languages: English (default), Japanese
 - Support URL: https://github.com/sok41/slide-table-styler/issues
-- Website: https://sok41.github.io/slide-table-styler/
-- Privacy policy: https://sok41.github.io/slide-table-styler/privacy.html
-- Terms of service: https://sok41.github.io/slide-table-styler/terms.html
+- Website: https://slide-table-styler.zkuma.com/
+- Privacy policy: https://slide-table-styler.zkuma.com/privacy.html
+- Terms of service: https://slide-table-styler.zkuma.com/terms.html
 
 ## Images / 画像
 
@@ -55,7 +55,7 @@ HOW TO USE
 Not happy with the result? Press Ctrl+Z (Cmd+Z on Mac) to undo.
 
 PRIVACY
-Slide Table Styler only reads and changes the tables in the presentation you have open, and only when you click Apply. It does not store your content or send it anywhere. Details: https://sok41.github.io/slide-table-styler/privacy.html
+Slide Table Styler only reads and changes the tables in the presentation you have open, and only when you click Apply. It does not store your content or send it anywhere. Details: https://slide-table-styler.zkuma.com/privacy.html
 
 SUPPORT
 Questions, bug reports and feature requests: https://github.com/sok41/slide-table-styler/issues
@@ -95,7 +95,7 @@ Slide Table Styler は、Googleスライドの表をワンクリックで見や�
 元に戻したいときは Ctrl+Z（Mac は ⌘+Z）を押してください。
 
 プライバシー
-Slide Table Styler は、「適用」を押したときに、開いているプレゼンテーションの表だけを読み取って変更します。内容を保存したり、外部に送信したりすることはありません。詳しくは https://sok41.github.io/slide-table-styler/privacy.html をご覧ください。
+Slide Table Styler は、「適用」を押したときに、開いているプレゼンテーションの表だけを読み取って変更します。内容を保存したり、外部に送信したりすることはありません。詳しくは https://slide-table-styler.zkuma.com/privacy.html をご覧ください。
 
 サポート
 ご質問・不具合の報告・機能の要望は https://github.com/sok41/slide-table-styler/issues へお寄せください。

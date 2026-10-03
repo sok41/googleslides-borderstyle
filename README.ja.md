@@ -6,8 +6,8 @@ Googleスライドの表に、罫線・背景色・文字の書式をまとめ�
 
 表を1つずつ手で整える代わりに、プリセットを選んで「適用」を押すだけで、資料内の表の見た目をそろえられます。
 
-- サイト：https://sok41.github.io/slide-table-styler/
-- [プライバシーポリシー](https://sok41.github.io/slide-table-styler/privacy.html)・[利用規約](https://sok41.github.io/slide-table-styler/terms.html)
+- サイト：https://slide-table-styler.zkuma.com/
+- [プライバシーポリシー](https://slide-table-styler.zkuma.com/privacy.html)・[利用規約](https://slide-table-styler.zkuma.com/terms.html)
 - お問い合わせ：[GitHub Issues](https://github.com/sok41/slide-table-styler/issues)
 
 ## できること

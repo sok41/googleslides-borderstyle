@@ -6,8 +6,8 @@ A Google Slides add-on (built with Google Apps Script) that applies clean, consi
 
 Instead of formatting tables one by one, pick a preset and click **Apply** to make every table in your deck look consistent.
 
-- Website: https://sok41.github.io/slide-table-styler/
-- [Privacy Policy](https://sok41.github.io/slide-table-styler/privacy.html) · [Terms of Service](https://sok41.github.io/slide-table-styler/terms.html)
+- Website: https://slide-table-styler.zkuma.com/
+- [Privacy Policy](https://slide-table-styler.zkuma.com/privacy.html) · [Terms of Service](https://slide-table-styler.zkuma.com/terms.html)
 - Support: [GitHub Issues](https://github.com/sok41/slide-table-styler/issues)
 
 ## Features
